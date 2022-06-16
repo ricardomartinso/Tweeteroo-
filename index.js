@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(json());
 
-const arrayUsuario = [
+const arrayUsuarios = [
   {
     username: "a",
     avatar:
@@ -27,14 +27,14 @@ const arrayUsuario = [
       "https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/01-proboscis-monkey-NationalGeographic_2684060.webp?w=1600&h=1067",
   },
 ];
-const arrayTweets = [];
+const serverTweets = [];
 let tweets = [];
 
 app.post("/sign-up", (req, res) => {
   const infoUser = req.body;
 
   if (infoUser.avatar && infoUser.username) {
-    arrayUsuario.push(req.body);
+    arrayUsuarios.push(req.body);
     return res.send("OK");
   }
 });
@@ -42,13 +42,13 @@ app.post("/sign-up", (req, res) => {
 app.post("/tweets", (req, res) => {
   const { username, tweet } = req.body;
 
-  arrayTweets.push({
+  serverTweets.push({
     username,
     tweet,
   });
 
-  tweets = arrayTweets.map(({ username, tweet }) => {
-    const arrRightUser = arrayUsuario.filter((usuario) => {
+  tweets = serverTweets.map(({ username, tweet }) => {
+    const arrRightUser = arrayUsuarios.filter((usuario) => {
       if (usuario.username === username) {
         return true;
       }
@@ -61,7 +61,11 @@ app.post("/tweets", (req, res) => {
 });
 
 app.get("/tweets", (req, res) => {
-  res.send(tweets);
+  if (tweets.length >= 10) {
+    tweets.slice(-10);
+    return res.send(tweets.slice(-10));
+  }
+  res.send(tweets.slice(-10));
 });
 
 app.listen(5000);
