@@ -5,59 +5,52 @@ const app = express();
 app.use(cors());
 app.use(json());
 
-const arrayUsuarios = [
-  {
-    username: "a",
-    avatar:
-      "https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/01-proboscis-monkey-NationalGeographic_2684060.webp?w=1600&h=1067",
-  },
-  {
-    username: "b",
-    avatar:
-      "https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/01-proboscis-monkey-NationalGeographic_2684060.webp?w=1600&h=1067",
-  },
-  {
-    username: "c",
-    avatar:
-      "https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/01-proboscis-monkey-NationalGeographic_2684060.webp?w=1600&h=1067",
-  },
-  {
-    username: "d",
-    avatar:
-      "https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/01-proboscis-monkey-NationalGeographic_2684060.webp?w=1600&h=1067",
-  },
-];
+const arrayUsuarios = [];
 const serverTweets = [];
 let tweets = [];
+
+function isImage(url) {
+  return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
+}
 
 app.post("/sign-up", (req, res) => {
   const infoUser = req.body;
 
-  if (infoUser.avatar && infoUser.username) {
+  if (
+    infoUser.avatar.length > 0 &&
+    infoUser.username.length > 0 &&
+    isImage(infoUser.avatar)
+  ) {
     arrayUsuarios.push(req.body);
-    return res.send("OK");
+    res.status(201).send("OK");
+  } else {
+    res.status(400).send("Todos os campos são obrigatórios!");
   }
 });
 
 app.post("/tweets", (req, res) => {
   const { username, tweet } = req.body;
 
-  serverTweets.push({
-    username,
-    tweet,
-  });
-
-  tweets = serverTweets.map(({ username, tweet }) => {
-    const arrRightUser = arrayUsuarios.filter((usuario) => {
-      if (usuario.username === username) {
-        return true;
-      }
+  if (username.length > 0 && tweet.length > 0) {
+    serverTweets.push({
+      username,
+      tweet,
     });
-    const avatar = arrRightUser[0].avatar;
-    return { username, avatar: avatar, tweet };
-  });
 
-  res.send("OK");
+    tweets = serverTweets.map(({ username, tweet }) => {
+      const arrRightUser = arrayUsuarios.filter((usuario) => {
+        if (usuario.username === username) {
+          return true;
+        }
+      });
+      const avatar = arrRightUser[0].avatar;
+      return { username, avatar: avatar, tweet };
+    });
+
+    res.status(201).send("OK");
+  } else {
+    res.status(400).send("Todos os campos são obrigatórios!");
+  }
 });
 
 app.get("/tweets", (req, res) => {
