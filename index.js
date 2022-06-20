@@ -57,4 +57,10 @@ app.get("/tweets", (req, res) => {
   res.send(tweets.slice(-10));
 });
 
+app.get("/tweets/:idUsername", (req, res) => {
+  const username = req.params.idUsername;
+  const tweetsUsername = tweets.filter((tweet) => tweet.username === username);
+  res.send(tweetsUsername);
+});
+
 app.listen(5000);
